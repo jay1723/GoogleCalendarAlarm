@@ -1,7 +1,6 @@
 from __future__ import print_function
 import httplib2
 import os
-import sys
 import pygame
 from pygame import mixer
 
@@ -58,24 +57,19 @@ def get_credentials():
 
 # Playing media files
 def playFile(fileName):
-    pygame.mixer.pre_init(22050, -16, 2, 4096)
-    pygame.init()
+    pygame.mixer.init()
     pygame.mixer.music.load(fileName)
-    pygame.mixer.music.play(1)
+    pygame.mixer.music.play()
 
 # While there is playback don't exit the method
-    while pygame.mixer.music.get_busy:
+    while pygame.mixer.music.get_busy():
         continue
 
 # Checks the timing for the events
 def checkTiming(cYear, cMonth, cDay, cHour, cMinute, eYear, eMonth, eDay, eHour, eMinute):
-    # Checks the Year, Month, Day, and Hour are equal.
-    if (cYear == eYear and cMonth == eMonth and cDay == eDay and cHour == eHour):
-        # Case where the event timer happens from 1-59
-        if (eMinute - 1  == cMinute):
-            return True
-        elif (eMinute == 0 and cMinute == 59):
-            return True
+    # Checks the Year, Month, Day, Hour, and Minutes are equal.
+    if (cYear == eYear and cMonth == eMonth and cDay == eDay and cHour == eHour and cMinute == eMinute):
+        return True
     # Case where the dates don't match
     return False
 
@@ -92,20 +86,14 @@ def main():
     service = discovery.build('calendar', 'v3', http=http)
 
     now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    #minute = timedelta(minutes = 1)
-    #maxTime = (datetime.datetime.utcnow() + minute).isoformat() + 'Z'
+
     print('Getting the upcoming 10 events')
     eventsResult = service.events().list(calendarId='primary', timeMin=now, maxResults=10, singleEvents=True, orderBy='startTime').execute()
     events = eventsResult.get('items', [])
 
-    # pygame.mixer.init()
-    # pygame.mixer.music.load('/Users/Jay1723/Documents/Songs/TujhMeinRabDikhtaHai.mp3')
-    # pygame.mixer.music.play()
-
     if not events:
         print('No upcoming events found.')
     for event in events:
-        #test = event['start'].get('dateTime')
 
         # Start information for the event
         fullTime = parser.parse(event['start'].get('dateTime'))
